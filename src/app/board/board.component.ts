@@ -1,6 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { COLS, BLOCK_SIZE, ROWS } from "../constants";
-import { Piece } from '../piece';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { COLS, BLOCK_SIZE, ROWS, KEY } from "../constants";
+import { GameService } from '../game.service';
+import { IPiece, Piece } from '../piece';
 
 @Component({
   selector: 'game-board',
@@ -17,8 +18,38 @@ export class BoardComponent implements OnInit {
   level: number;
 
   board: number[][];
+  piece: Piece;
 
-  constructor() { }
+  moves = {
+    [KEY.LEFT]: (p: IPiece) => ({ ...p, x: p.x - 1 }),
+    [KEY.RIGHT]: (p: IPiece) => ({ ...p, x: p.x + 1 }),
+    [KEY.DOWN]: (p: IPiece) => ({ ...p, y: p.y + 1 })
+  }
+
+  /**
+   * Listen to keyboard event
+   * @param event
+   */
+  @HostListener('window:keydown', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    if (this.moves[event.key]) {
+      // If the event.key exist in our moves, stop the event from bubbling
+      event.preventDefault();
+      // get the next state of the piece
+      const p = this.moves[event.key](this.piece);
+      if (this.service.valid(p, this.board)) {
+        this.piece.move(p);
+        // clear the old position
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        // draw the new position
+        this.piece.draw();
+      }
+
+
+    }
+  }
+
+  constructor(private service: GameService) { }
 
   ngOnInit(): void {
     this.initBoard();
@@ -36,9 +67,9 @@ export class BoardComponent implements OnInit {
 
   play() {
     this.board = this.getEmptyBoard();
-    const piece = new Piece(this.ctx);
-    piece.spawn();
-    piece.draw();
+    this.piece = new Piece(this.ctx);
+    this.piece.spawn();
+    this.piece.draw();
   }
 
   getEmptyBoard(): number[][] {

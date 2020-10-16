@@ -28,15 +28,25 @@ export class Piece implements IPiece {
         const rows = this.shape.length;
         const cols = this.shape[0].length;
         for (let i = 0; i < rows; i++)
-            for (let j = 0; i < cols; j++) {
+            for (let j = 0; j < cols; j++) {
                 const value = this.shape[i][j];
                 if (value > 0) {
                     this.ctx.fillStyle = this.color;
-                    const currentX = this.x + i;
-                    const currentY = this.y + j;
+
+                    const currentX = this.x + j;
+                    const currentY = this.y + i;
 
                     this.ctx.fillRect(currentX, currentY, 1, 1);
                 }
             }
+    }
+
+    /**
+     * Move current piece to position x, y
+     * @param p
+     */
+    move(p: IPiece) {
+        this.x = p.x;
+        this.y = p.y;
     }
 }
