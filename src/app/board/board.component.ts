@@ -23,7 +23,9 @@ export class BoardComponent implements OnInit {
   moves = {
     [KEY.LEFT]: (p: IPiece) => ({ ...p, x: p.x - 1 }),
     [KEY.RIGHT]: (p: IPiece) => ({ ...p, x: p.x + 1 }),
-    [KEY.DOWN]: (p: IPiece) => ({ ...p, y: p.y + 1 })
+    [KEY.DOWN]: (p: IPiece) => ({ ...p, y: p.y + 1 }),
+    [KEY.SPACE]: (p: IPiece) => ({ ...p, y: p.y + 1 }),
+    [KEY.UP]: (p: IPiece) => this.service.rotate(p)
   }
 
   /**
@@ -32,12 +34,24 @@ export class BoardComponent implements OnInit {
    */
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (this.moves[event.key]) {
+    if (this.moves[event.code]) {
       // If the event.key exist in our moves, stop the event from bubbling
       event.preventDefault();
       // get the next state of the piece
-      const p = this.moves[event.key](this.piece);
-      if (this.service.valid(p, this.board)) {
+      let p = this.moves[event.code](this.piece);
+
+      if (event.code === KEY.SPACE) {
+        // Hard drop, drops the tetromino until it collides with something
+        while (this.service.valid(p, this.board)) {
+          this.piece.move(p);
+          p = this.moves[KEY.DOWN](this.piece);
+        }
+
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        // draw the new position
+        this.piece.draw();
+      } else if (this.service.valid(p, this.board)) {
         this.piece.move(p);
         // clear the old position
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);

@@ -54,4 +54,31 @@ export class GameService {
         }
         return result;
     }
+
+    /**
+     * Matrix rotation by 90 degress - clockwise, by
+     *  1 - Find the transpose of the matrix
+     *  2 - Reverse every rows of the matrix
+     * @param piece
+     */
+    rotate(piece: IPiece): IPiece {
+        const rows = piece.shape.length;
+        const cols = piece.shape[0].length;
+
+        const shapeClone = Array.from({ length: rows }, () => Array(cols).fill(0));
+        // 1 - Transpose the original matrix
+        for (let row = 0; row < rows; row++)
+            for (let col = 0; col < cols; col++) {
+                shapeClone[row][col] = piece.shape[col][row]
+            }
+
+        // 2 - reverse each row
+        shapeClone.forEach(row => row.reverse());
+        return {
+            x: piece.x,
+            y: piece.y,
+            color: piece.color,
+            shape: shapeClone
+        }
+    }
 }

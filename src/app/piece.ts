@@ -48,5 +48,6 @@ export class Piece implements IPiece {
     move(p: IPiece) {
         this.x = p.x;
         this.y = p.y;
+        this.shape = p.shape;
     }
 }
