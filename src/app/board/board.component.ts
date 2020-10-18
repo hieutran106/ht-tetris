@@ -28,6 +28,8 @@ export class BoardComponent implements OnInit {
     [KEY.UP]: (p: IPiece) => this.service.rotate(p)
   }
 
+  time = { start: 0, elapsed: 0, level: 1000 };
+  requestId: number;
   /**
    * Listen to keyboard event
    * @param event
@@ -48,15 +50,10 @@ export class BoardComponent implements OnInit {
         }
 
 
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        // draw the new position
-        this.piece.draw();
+        this.draw();
       } else if (this.service.valid(p, this.board)) {
         this.piece.move(p);
-        // clear the old position
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        // draw the new position
-        this.piece.draw();
+        this.draw();
       }
 
 
@@ -83,10 +80,53 @@ export class BoardComponent implements OnInit {
     this.board = this.getEmptyBoard();
     this.piece = new Piece(this.ctx);
     this.piece.spawn();
-    this.piece.draw();
+
+    this.animate();
   }
 
   getEmptyBoard(): number[][] {
     return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  }
+
+  /**
+   * Draw the board game
+   */
+  draw() {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.piece.draw();
+    this.drawBoard();
+  }
+
+  /**
+   * Draw the game board
+   */
+  private drawBoard() {
+
+  }
+
+  private animate(now: number = 0) {
+    console.log(this.time);
+    this.time.elapsed = now - this.time.start;
+    // If elapsed time has passed time for current level
+    if (this.time.elapsed > this.time.level) {
+      this.time.start = now;
+      if (!this.drop()) {
+        console.log('Game over');
+      }
+    }
+
+    this.draw();
+    this.requestId = requestAnimationFrame(this.animate.bind(this));
+  }
+
+  private drop(): boolean {
+    let p = this.moves[KEY.DOWN](this.piece);
+    if (this.service.valid(p, this.board)) {
+      this.piece.move(p);
+      return true;
+    } else {
+      console.log('Cannot move');
+      return false;
+    }
   }
 }

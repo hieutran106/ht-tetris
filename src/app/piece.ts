@@ -1,3 +1,5 @@
+import { COLORS, SHAPES } from './constants';
+
 export interface IPiece {
     // x, y - position on the board
     x: number;
@@ -12,15 +14,18 @@ export class Piece implements IPiece {
     color: string;
     shape: number[][];
     constructor(private ctx: CanvasRenderingContext2D) {
-
+        this.spawn();
     }
 
     spawn() {
-        this.color = "blue";
-        this.shape = [[2, 0, 0], [2, 2, 2], [0, 0, 0]];
+        const typeId = this.randomizeTetrominoType(COLORS.length - 1);
+
+        this.shape = SHAPES[typeId];
+        this.color = COLORS[typeId];
+
 
         // position where the shape spawns
-        this.x = 3;
+        this.x = typeId === 4 ? 4 : 3;
         this.y = 0;
     }
 
@@ -49,5 +54,9 @@ export class Piece implements IPiece {
         this.x = p.x;
         this.y = p.y;
         this.shape = p.shape;
+    }
+
+    randomizeTetrominoType(noOfTypes: number): number {
+        return Math.floor(Math.random() * noOfTypes);
     }
 }
