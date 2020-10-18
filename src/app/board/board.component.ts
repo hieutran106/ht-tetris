@@ -107,7 +107,8 @@ export class BoardComponent implements OnInit {
   private animate(now: number = 0) {
     console.log(this.time);
     this.time.elapsed = now - this.time.start;
-    // If elapsed time has passed time for current level
+    // If elapsed time has passed time for current level, drop the piece
+
     if (this.time.elapsed > this.time.level) {
       this.time.start = now;
       if (!this.drop()) {
